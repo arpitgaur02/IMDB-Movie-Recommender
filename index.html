@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movie Sentiment Analyzer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  <style>
+    body {
+      background-color: #e9ecef;
+    }
+    .container {
+      max-width: 700px;
+    }
+    .card {
+      border: none;
+      border-radius: 1.5rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      padding: 2.5rem;
+    }
+    .form-select, .form-control {
+      border-radius: 0.75rem;
+      border: 1px solid #ced4da;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+    }
+    .form-select:focus, .form-control:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      border-color: #86b7fe;
+    }
+    .btn-analyze {
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      font-size: 1rem;
+    }
+    .output-box {
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .output-box.positive {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .output-box.negative {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .sentiment-text {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .probability-text {
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+    <div class="card w-100">
+      <h1 class="text-center mb-3">🍿 Movie Review Sentiment Analyzer</h1>
+      <p class="text-center text-muted mb-5">Select a sample review or type your own to get an instant sentiment prediction.</p>
+
+      <!-- Dropdown -->
+      <div class="mb-4">
+        <label for="reviewSelect" class="form-label fw-bold">Choose a Sample Review:</label>
+        <select id="reviewSelect" class="form-select">
+          <option value="" disabled selected>Select an example review...</option>
+          <option value="This movie was a cinematic masterpiece. The acting, direction, and plot were all exceptional. A must-watch!">This movie was a cinematic masterpiece. The acting, direction, and plot were all exceptional. A must-watch!</option>
+          <option value="A truly terrible film. The plot was nonexistent, the characters were flat, and the special effects were laughable.">A truly terrible film. The plot was nonexistent, the characters were flat, and the special effects were laughable.</option>
+          <option value="The film started off well, but the ending was a complete letdown. A mixed bag overall.">The film started off well, but the ending was a complete letdown. A mixed bag overall.</option>
+          <option value="I have never been so bored in my entire life. I walked out after the first 20 minutes.">I have never been so bored in my entire life. I walked out after the first 20 minutes.</option>
+          <option value="An absolute delight from start to finish. I loved every minute of this movie.">An absolute delight from start to finish. I loved every minute of this movie.</option>
+        </select>
+      </div>
+
+      <div class="text-center mb-3">— OR —</div>
+
+      <!-- Custom Review Input -->
+      <div class="mb-3">
+        <label for="reviewInput" class="form-label fw-bold">Type Your Own Review:</label>
+        <textarea id="reviewInput" class="form-control" rows="4" placeholder="e.g., The movie was an absolute triumph from start to finish."></textarea>
+      </div>
+      <button id="analyzeBtn" class="btn btn-primary w-100 btn-analyze mb-3">Analyze Sentiment</button>
+
+      <!-- Loading -->
+      <div id="loadingIndicator" class="text-center d-none mt-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2">Analyzing...</p>
+      </div>
+
+      <!-- Result -->
+      <div id="resultContainer" class="output-box d-none mt-4">
+        <h4 class="mb-2"><span id="sentimentText" class="sentiment-text"></span></h4>
+        <p class="probability-text text-muted mb-0">Probability: <span id="probabilityResult"></span></p>
+      </div>
+
+      <!-- Error -->
+      <div id="errorContainer" class="text-center mt-4 d-none">
+        <p class="text-danger">Failed to get a prediction. Please try again.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script>
+    const apiEndpoint = window.location.origin + '/predict_sentiment/';
+    const reviewSelect = document.getElementById('reviewSelect');
+    const reviewInput = document.getElementById('reviewInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const resultContainer = document.getElementById('resultContainer');
+    const errorContainer = document.getElementById('errorContainer');
+    const sentimentText = document.getElementById('sentimentText');
+    const probabilityResult = document.getElementById('probabilityResult');
+
+    async function analyzeReview(reviewText) {
+      if (!reviewText) return;
+
+      resultContainer.classList.add('d-none');
+      errorContainer.classList.add('d-none');
+      loadingIndicator.classList.remove('d-none');
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ "review": reviewText })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned status code: ${response.status}`);
+        }
+
+        const data = await response.json();
+        let emoji = data.sentiment === 'positive' ? '👍' : '👎';
+        sentimentText.textContent = `${emoji} ${data.sentiment.toUpperCase()}`;
+        probabilityResult.textContent = `${(data.probability * 100).toFixed(2)}%`;
+
+        resultContainer.className = `output-box mt-4 ${data.sentiment}`;
+      } catch (error) {
+        console.error("Failed to fetch sentiment prediction:", error);
+        errorContainer.classList.remove('d-none');
+      } finally {
+        loadingIndicator.classList.add('d-none');
+      }
+    }
+
+    // Dropdown handler
+    reviewSelect.addEventListener('change', (event) => {
+      analyzeReview(event.target.value);
+    });
+
+    // Button handler for typed input
+    analyzeBtn.addEventListener('click', () => {
+      analyzeReview(reviewInput.value.trim());
+    });
+
+    // Enter key handler for textarea
+    reviewInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        analyzeReview(reviewInput.value.trim());
+      }
+    });
+  </script>
+</body>
+</html>
