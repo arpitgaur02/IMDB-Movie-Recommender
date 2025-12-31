@@ -28,7 +28,7 @@ This application takes a movie review as input and outputs the probability of it
 - **Data Format:** JSON, NPZ
 
 ## 🧠 Model Architecture
-
+![Model Architecture](imdb_architecture.png)
 The model is a Feed-Forward Neural Network with the following structure:
 1.  **Input Layer:** Vectorized text (Bag-of-Words style, capped at 10,000 words).
 2.  **Hidden Layers:** Two hidden layers with **ReLU** activation.
