@@ -6,6 +6,15 @@ A lightweight web application that predicts the sentiment (Positive/Negative) of
 
 This application takes a movie review as input and outputs the probability of it being a positive review. It uses a neural network trained on the IMDB dataset.
 
+## 📊 Dataset Details: IMDB Movie Reviews
+The model was trained on the **Large Movie Review Dataset**, a benchmark for binary sentiment classification.
+
+* **Total Samples**: 50,000 reviews (25,000 training / 25,000 testing).
+* **Balance**: Perfectly balanced with 50% positive and 50% negative reviews.
+* **Feature Engineering**: 
+    * Limited to the **top 10,000** most frequent words.
+    * **Multi-Hot Encoding**: Text is converted into a 10,000-dimensional binary vector where `1` represents the presence of a word and `0` its absence.
+    
 **Key Highlights:**
 * **Full-Stack Implementation:** Includes a FastAPI backend and a responsive HTML/Bootstrap frontend.
 * **Lightweight Inference:** The forward pass (prediction logic) is implemented purely in **NumPy**. The model weights (`W1`, `b1`, etc.) are loaded from a file, and the matrix multiplications and activation functions (ReLU, Sigmoid) are calculated manually.
