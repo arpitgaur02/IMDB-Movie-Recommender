@@ -6,6 +6,8 @@ A lightweight web application that predicts the sentiment (Positive/Negative) of
 
 This application takes a movie review as input and outputs the probability of it being a positive review. It uses a neural network trained on the IMDB dataset.
 
+
+
 ## 📊 Dataset Details: IMDB Movie Reviews
 The model was trained on the **Large Movie Review Dataset**, a benchmark for binary sentiment classification.
 
@@ -14,27 +16,29 @@ The model was trained on the **Large Movie Review Dataset**, a benchmark for bin
 * **Feature Engineering**: 
     * Limited to the **top 10,000** most frequent words.
     * **Multi-Hot Encoding**: Text is converted into a 10,000-dimensional binary vector where `1` represents the presence of a word and `0` its absence.
-    
-**Key Highlights:**
-* **Full-Stack Implementation:** Includes a FastAPI backend and a responsive HTML/Bootstrap frontend.
-* **Lightweight Inference:** The forward pass (prediction logic) is implemented purely in **NumPy**. The model weights (`W1`, `b1`, etc.) are loaded from a file, and the matrix multiplications and activation functions (ReLU, Sigmoid) are calculated manually.
-* **Interactive UI:** Users can select sample reviews or type their own to see real-time predictions.
 
-## 📂 Repository Structure
 
-- `app.py`: The main FastAPI application. It handles model loading, the custom forward pass logic, and API endpoints.
-- `index.html`: The frontend user interface built with Bootstrap 5. It communicates with the backend via the `/predict_sentiment/` endpoint.
-- `model_params.npz`: Compressed NumPy file containing the trained weights and biases (W1, b1, W2, b2, W3, b3).
-- `word_index.json`: A dictionary mapping words to their integer indices, used to vectorize input text.
-- `imdb_nn_model.ipynb`: (Assumed) The Jupyter Notebook used to train the Neural Network and save the parameters.
-- `requirements.txt`: List of Python dependencies.
 
-## 🛠️ Technologies Used
+## 📈 Model Performance & Evaluation
 
-- **Backend:** Python, FastAPI, Uvicorn
-- **Computation:** NumPy (for vectorization and matrix operations)
-- **Frontend:** HTML5, JavaScript (Fetch API), Bootstrap 5
-- **Data Format:** JSON, NPZ
+The model was evaluated using a test subset of 200 samples. Below are the detailed metrics and the confusion matrix.
+
+### Classification Report
+| Class | Precision | Recall | F1-Score | Support |
+| :--- | :--- | :--- | :--- | :--- |
+| **0 (Negative)** | 0.89 | 0.69 | 0.78 | 163 |
+| **1 (Positive)** | 0.32 | 0.62 | 0.42 | 37 |
+| | | | | |
+| **Accuracy** | | | **0.68** | 200 |
+| **Macro Avg** | 0.60 | 0.66 | 0.60 | 200 |
+| **Weighted Avg** | 0.78 | 0.68 | 0.71 | 200 |
+
+### Confusion Matrix
+The following matrix visualizes the performance of the model, showing the distribution of True Positives, True Negatives, False Positives, and False Negatives.
+
+![Confusion Matrix](results/cm.png)
+
+
 
 ## 🧠 Model Architecture
 ![Model Architecture](imdb_architecture.png)
@@ -45,36 +49,16 @@ The model is a Feed-Forward Neural Network with the following structure:
 
 *Note: The actual training happens in `imdb_nn_model.ipynb`, while `app.py` performs the inference using the saved weights.*
 
-## 🚀 How to Run
-
-1.  **Clone the repository**
-    ```bash
-    git clone <your-repo-url>
-    cd <repo-name>
-    ```
-
-2.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3.  **Start the Application**
-    ```bash
-    python app.py
-    ```
-
-4.  **Access the App**
-    Open your browser and navigate to:
-    `http://localhost:8000`
-
-## 📊 API Usage
-
-You can also use the API programmatically:
-
-**Endpoint:** `POST /predict_sentiment/`
-
-**Request:**
-```json
-{
-  "review": "The movie was absolutely fantastic! I loved the ending."
-}
+## 📂 Repository Structure
+```text
+.
+├── app.py                  # FastAPI Backend & Inference Engine
+├── imdb_architecture.png   # Architecture Diagram
+├── imdb_nn_model.ipynb     # Training Notebook
+├── index.html              # Main Frontend UI
+├── index3.html             # Alternative Frontend
+├── model_params.npz        # Trained Weights (W1, b1, W2, b2, W3, b3)
+├── requirements.txt        # Dependencies
+├── results/
+│   └── cm.png              # Confusion Matrix Plot
+└── word_index.json         # Word-to-Index Vocabulary
